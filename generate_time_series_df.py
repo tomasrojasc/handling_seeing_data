@@ -1,6 +1,7 @@
 import pandas as pd
 import pickle
 import os
+from utils import *
 
 
 interest_folder = './processed_data/resampled_data/'
@@ -19,10 +20,12 @@ all_dfs = []
 for i, path in enumerate(paths_2_dict):
     print('opening ' + path)
     with open(path, 'rb') as f:
-        current_df = pickle.load(f)
+        current_dict = pickle.load(f)
     f.close()
+    current_df = make_df_from_dict(current_dict)
     all_dfs.append(current_df)
 
+print('merging...')
 time_series_df = pd.concat(all_dfs)
 
 print('saving big df...')
