@@ -2,30 +2,32 @@
 
 
 ## Description of the files
-
+  * __``utils.py``__: This script contains all the functions that the other scripts may need.
   * __``resampling_data.py``__: This script is used for creating dictionaries of resampled data from the original csv files located at ``original_data/`` folder.
-  * __``creating_resampled_df_from_resampled_data.py``__: This script takes the files made by the previous one and merge everything into a big pandas dataframe containing all the resampled data. This is a preview of such dataframe:
-  ```
-      datetime	 paranal 	armazones 	date_key 	sampling_rate
-    0 	2004-11-01 23:30:00 	0.820000 	NaN 	2004-11-01 	1
-    1 	2004-11-01 23:31:00 	0.840000 	NaN 	2004-11-01 	1
-    2 	2004-11-01 23:32:00 	0.800000 	NaN 	2004-11-01 	1
-    3 	2004-11-01 23:33:00 	0.720000 	NaN 	2004-11-01 	1
-    4 	2004-11-01 23:34:00 	0.710000 	NaN 	2004-11-01 	1
-    ... 	... 	... 	... 	... 	...
-    17 	2009-09-29 07:30:00 	1.136333 	NaN 	2009-09-28 	30
-    18 	2009-09-29 08:00:00 	1.223667 	NaN 	2009-09-28 	30
-    19 	2009-09-29 08:30:00 	1.402000 	NaN 	2009-09-28 	30
-    20 	2009-09-29 09:00:00 	1.239333 	NaN 	2009-09-28 	30
-    21 	2009-09-29 09:30:00 	1.388667 	NaN 	2009-09-28 	30
-  ```
+  * __``adding_date_key_column_to_dicts.py``__: This script takes the files made by the previous one and overwrite each dict but each df now has the ``"date_key"`` column.
+  * __``adding_mean_norm_cols.py``__: This file takes all the resampled dicts dataframes and puts a mean norm column in each one, one for location. Then it overwrites the data.
+  * __``add_sampling_rate_col.py``__: This script takes all the resampling dict dataframes and uses them to add the sampling rate.
+
+
+## Workflow
+
+Even though there are scripts that does not matter when they are executed, it is suggested to run the files in this order:
+  * ``resampling_data.py``
+  * ``adding_date_key_column_to_dicts.py``
+  * ``adding_mean_norm_cols.py``
+  * ``add_sampling_rate_col.py``
+
+
+
+
+
 ## Things to remember
   * Ask for the weather data
   * important dates such as ``2009-04-01``
 ## TODO
 Still missing things to do:
 
-  * Create a function that canrecieve a df and add a new column for the mean normalized data. This should be generic enough so one can pass filtered dataframes one at a time.
+
   * Create a function that compute the correlations for the non_mean_norm data and the raw_data. This correlations should be saved as a dictionary that can be consulted with the date_key and the sampling_rate, it must contain a dataframe with the actual data.
   * A dataframe tha has the maximum values for the correlation functions as well as the corresponding shift. This should be __one__ dataframe with those values, date_key and sampling_rate as keys.
 

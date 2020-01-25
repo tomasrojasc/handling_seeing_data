@@ -256,13 +256,41 @@ def add_date_key_to_dfs_of_dictionary(dict_of_dfs):
     this function takes a dictionary that contains many resampled days
     and puts a date_key into them to retun a whole df
     :param dict_of_dfs: a dictionary of dfs (have to open bin first)
-    :return: a big df with all the days and keys
+    :return: a dictionary with the nwe column
     """
     keys = [i for i in dict_of_dfs]
     for key in keys:
         dict_of_dfs[key].loc[:, 'date_key'] = dict_of_dfs[key].index[0].strftime('%Y-%m-%d')
         dict_of_dfs[key].reset_index(level=0, inplace=True)
 
-    list4concat = [dict_of_dfs[key] for key in keys]
+    return dict_of_dfs
 
-    return pd.concat(list4concat).sort_values('datetime')
+def mean_norm(df):
+    return (df - df.mean()) / df.std()
+
+def mean_norm_current_df(df):
+    df.loc[:, ('paranal_mean_norm')] = mean_norm(df['paranal'])
+    df.loc[:, ('armazones_mean_norm')] = mean_norm(df['armazones'])
+
+
+
+def mean_normalize(dict_df):
+    """
+    This function get the paranal data and armazones data and ads two
+    mean normalized columns for the dfs in the dict, one for each site
+    :param df: dataframe with all the paranal and armazones data
+    :return: dict of dfs with two new columns
+    """
+
+
+    keys = [key for key in dict_df]
+    n_keys = str(len(keys))
+    for i, key in enumerate(keys):
+        if i % 100 == 0:
+            print('mean normalizing day ' + str(i) + '/' + n_keys)
+        current_df = dict_df[key]
+        mean_norm_current_df(current_df)
+    return dict_df
+
+
+

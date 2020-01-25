@@ -23,14 +23,10 @@ for i, path in enumerate(paths_2_dict):
         current_dict = pickle.load(f)
     f.close()
 
-    current_df = add_date_key_to_dfs_of_dictionary(current_dict)
-    current_df.loc[:, ('sampling_rate')] = number_of_minutes[i]
-    all_dfs.append(current_df)
+    current_dict = add_date_key_to_dfs_of_dictionary(current_dict)
 
-print('merging')
-big_df = pd.concat(all_dfs).sort_values(['sampling_rate', 'datetime'])
+    print('overwriting...')
+    with open(path, 'wb') as f:
+        pickle.dump(current_dict, f)
+    f.close()
 
-print('saving')
-with open('processed_data/resampled_data_dfs/resampled_data.dataframe', 'wb') as f:
-    pickle.dump(big_df, f)
-f.close()
