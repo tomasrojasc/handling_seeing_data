@@ -60,27 +60,7 @@ def resample_df(dict_df, T):
             for date in dict_df}
 
 
-def correlate_dfs(dict_df, T):
-    """
-    this function calculate the cross corr for a dict of dfs and returns
-    a dict with the same days as keys but with dataframes corresponding
-    to the shifts in minutes and corr
-    :param dict_df: dictionarí of the utdf
-    :param: T: time sampling rate dor the dict
-    :return: dictionary with the correlations
-    """
 
-    corr_dict = {}
-    for date in dict_df:
-        s1 = dict_df[date].paranal
-        s2 = dict_df[date].armazones
-        corr = correlate(s1, s2, 'full')
-        shift = np.arange(0, len(corr), 1)
-        shift -= (len(s1) - 1) # put the two signals in phase
-        shift *= T
-        corr_dict[date] = pd.DataFrame({'shift': shift, 'corr': corr})
-
-    return corr_dict
 
 
 def get_polinomial_parameters(dict_df, degree):
@@ -294,3 +274,58 @@ def mean_normalize(dict_df):
 
 
 
+def correlate_a_df(df):
+    """
+    computes the cross-correlation for a dataframe of two columns
+    :param df: dataframe to correlate
+    :return: dataframe with shift and cross_corr columns
+    """
+
+    cols = ['paranal', 'armazones', 'paranal_mean_norm', 'armazones_mean_norm']
+    s1 = df[cols[0]].values
+    s2 = df[cols[1]].values
+    corr = correlate(s1, s2, 'full')
+    shift = np.arange(0, len(corr), 1)
+    shift -= (len(s1) - 1)  # put the two signals in phase
+    s3 = df[cols[2]].values
+    s4 = df[cols[3]].values
+    corr_mean_norm = correlate(s3, s4, 'full')
+    shift_mean_norm = np.arange(0, len(corr_mean_norm), 1)
+    shift_mean_norm -= (len(s3) - 1)  # put the two signals in phase
+
+    return pd.DataFrame({'shift': shift, 'cross_corr': corr, 'shift_mean_norm': shift_mean_norm, 'cross_corr_mean_norm': corr_mean_norm})
+
+
+def correlate_a_dict(dict2corr):
+    """
+    This function takes a dict of df and computes all the correlations
+    and shifts then returns a dict with the information with the days as
+    keys
+    :param dict2corr: dictionary to correlate
+    :return: correlated dictionary
+    """
+    corr_dict = {}
+    keys = [key for key in dict2corr]
+
+    for key in keys:
+        current_df = dict2corr[key].sort_values('datetime')
+        corr_dict[key] = correlate_a_df(current_df)
+
+    return corr_dict
+
+
+
+def make_df_from_dict(dict_dfs):
+    """
+    This functions takes a dict of dfs and merges it into a big one
+    :param dict_dfs: dictionary with the dfs
+    :return: big dictionary
+    """
+    keys = [key for key in dict_dfs]
+
+    dfs_to_append = []
+
+    for key in keys:
+        dfs_to_append.append(dict_dfs[key])
+
+    return pd.concat(dfs_to_append)
