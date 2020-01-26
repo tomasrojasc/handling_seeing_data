@@ -364,5 +364,15 @@ def get_max_corr_from_dict(dict_df):
     return pd.concat(df_4_concat)
 
 
-
+def shift_to_actual_minutes(dict_w_date_key, sampling_rate):
+    """
+    This file makes shure the shift for the corr data is in minutes
+    :param dict_w_date_key: dictionary of one sampling rate
+    :param sampling_rate: sampling rate of the dict
+    :return: the same dict but the shifts ar in minutes
+    """
+    for date in dict_w_date_key:
+        dict_w_date_key[date]['shift'] *= sampling_rate
+        dict_w_date_key[date]['shift_mean_norm'] *= sampling_rate
+    return dict_w_date_key
 
