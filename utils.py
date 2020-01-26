@@ -282,13 +282,13 @@ def correlate_a_df(df):
     """
 
     cols = ['paranal', 'armazones', 'paranal_mean_norm', 'armazones_mean_norm']
-    s1 = df[cols[0]].values
-    s2 = df[cols[1]].values
+    s1 = df[cols[0]].fillna(0).values
+    s2 = df[cols[1]].fillna(0).values
     corr = correlate(s1, s2, 'full')
     shift = np.arange(0, len(corr), 1)
     shift -= (len(s1) - 1)  # put the two signals in phase
-    s3 = df[cols[2]].values
-    s4 = df[cols[3]].values
+    s3 = df[cols[2]].fillna(0).values
+    s4 = df[cols[3]].fillna(0).values
     corr_mean_norm = correlate(s3, s4, 'full')
     shift_mean_norm = np.arange(0, len(corr_mean_norm), 1)
     shift_mean_norm -= (len(s3) - 1)  # put the two signals in phase
@@ -329,3 +329,40 @@ def make_df_from_dict(dict_dfs):
         dfs_to_append.append(dict_dfs[key])
 
     return pd.concat(dfs_to_append)
+
+
+def get_max_corr_from_df(df):
+    """
+    This function takes the max corr values for a df of correlations,
+    separing mean_norm of non_mean_norm (without prefix)
+    :param df: df of correlations
+    :return: df max_corr
+    """
+    max_cross_corr = df[df['cross_corr'] == df['cross_corr'].max()][['shift', 'cross_corr']]
+    max_cross_corr_mean_norm = df[df['cross_corr_mean_norm'] == df['cross_corr_mean_norm'].max()][['shift_mean_norm', 'cross_corr_mean_norm']]
+    df_4_return = pd.DataFrame(pd.concat([max_cross_corr, max_cross_corr_mean_norm], sort=True).sum()).T
+
+    return df_4_return
+
+
+
+def get_max_corr_from_dict(dict_df):
+    """
+    This function generates a big dataframe with the max correlations
+    from a dict of dataframes
+    :param dict_df: dict of dataframes with the date_key as keys and the
+    correlation data.
+    :return: dataframe of max_corr data for the sampling rate used
+    """
+
+    keys = [key for key in dict_df]
+    df_4_concat = []
+    for key in keys:
+        current_df = get_max_corr_from_df(dict_df[key])
+        current_df.loc[:, ('date_key')] = key
+        df_4_concat.append(current_df)
+    return pd.concat(df_4_concat)
+
+
+
+
